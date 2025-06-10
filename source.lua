@@ -1,3 +1,4 @@
+print("Webhook:", webhook_link)
 
 local player = game.Players.LocalPlayer
 
