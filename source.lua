@@ -23,33 +23,42 @@ gatherItems(player.Backpack)
 gatherItems(player.Character or player.CharacterAdded:Wait())
 
 -- Categorize inventory
-local function formatItems(items)
+local function formatItems(items, isEgg)
     local result = {}
 
     for _, name in ipairs(items) do
         local count = "1"
         local cleanName = name
 
-        -- Check for [xN] ending
-        local bracketedCount = name:match("%[x(%d+)%]$")
-        if bracketedCount then
-            count = bracketedCount
-            cleanName = name:gsub("%s*%[x%d+%]%s*$", "")
+        if isEgg then
+            -- Egg names always end in "xN"
+            local eggCount = name:match("x(%d+)$")
+            if eggCount then
+                count = eggCount
+                cleanName = name:gsub("%s*x%d+%s*$", "")
+            end
         else
-            -- Check for x1 (non-bracketed) ending
-            local x1Match = name:match("x1$")
-            if x1Match then
-                count = "1"
-                cleanName = name:gsub("%s*x1%s*$", "")
+            -- Normal item logic
+            local bracketedCount = name:match("%[x(%d+)%]$")
+            if bracketedCount then
+                count = bracketedCount
+                cleanName = name:gsub("%s*%[x%d+%]%s*$", "")
+            else
+                local x1Match = name:match("x1$")
+                if x1Match then
+                    count = "1"
+                    cleanName = name:gsub("%s*x1%s*$", "")
+                end
             end
         end
 
-        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1") -- trim
+        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
         table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
 
     return result
 end
+
 
 
 
