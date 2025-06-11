@@ -100,9 +100,9 @@ local message = {
     avatar_url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=100&height=100&format=png",
     embeds = { {
         title = "**" .. player.Name .. "**",
-        description = "_ _\n**🪙 Sheckles  **: " ..
+        description = "_ _\n> **🪙 Sheckles  **: " ..
     (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
-    "\n_ _\n_ _\n**🎒 | Inventory**\n_ _\n_ _",
+    "\n_ _\n_ _\n**> 🎒 | Inventory**\n_ _\n_ _",
         color = 2750290,
         fields = {
             {
