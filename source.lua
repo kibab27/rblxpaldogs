@@ -1,4 +1,3 @@
--- Replace with your actual Discord webhook
 local webhook = webhook_link
 
 local player = game:GetService("Players").LocalPlayer
@@ -21,10 +20,9 @@ end
 
 -- Message format
 local message = {
-    ["content"] = "**Inventory for " .. player.Name .. "**\n" ..
+    ["content"] = "** " .. player.Name .. "**\n" ..
                  (next(inventory) and table.concat(inventory, "\n") or "No tools found."),
     ["username"] = player.Name,
-    ["avatar_url"] = "https://www.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&Format=Png&userid=" .. player.UserId
 }
 
 -- Send it using executor-provided HTTP function
