@@ -9,6 +9,16 @@ local function debug(msg)
     end)
 end
 
+local function formatNumberWithCommas(n)
+    local s = tostring(n)
+    local pattern = "(%d)(%d%d%d)$"
+    while true do
+        s, k = s:gsub("^(-?%d+)(%d%d%d)", '%1,%2')
+        if k == 0 then break end
+    end
+    return s
+end
+
 -- Collect inventory
 local allItems = {}
 local function gatherItems(container)
@@ -135,12 +145,4 @@ else
     debug("❌ HTTP requests not supported.")
 end
 
-local function formatNumberWithCommas(n)
-    local s = tostring(n)
-    local pattern = "(%d)(%d%d%d)$"
-    while true do
-        s, k = s:gsub("^(-?%d+)(%d%d%d)", '%1,%2')
-        if k == 0 then break end
-    end
-    return s
-end
+
