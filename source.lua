@@ -26,12 +26,17 @@ gatherItems(player.Character or player.CharacterAdded:Wait())
 local function formatItems(items)
     local result = {}
     for _, name in ipairs(items) do
+        -- Extract count
         local count = string.match(name, "%[x(%d+)%]") or "1"
+        -- Remove the [xN] from the name entirely
         local cleanName = name:gsub("%[x%d+%]%s*", ""):gsub("^%s*(.-)%s*$", "%1")
+        -- Format final result
         table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
     return result
 end
+
+
 
 local function filterItems(keywordList)
     local filtered = {}
