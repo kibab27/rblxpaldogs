@@ -112,7 +112,7 @@ local message = {
             },
             {
                 name = "> 🥚 | Pets & Eggs",
-                value = codeBlock(eggs) .. "\n" .. codeBlock(pets),
+                value = codeBlock(pets)  .. "\n" .. codeBlock(eggs),
                 inline = false
             },
             {
