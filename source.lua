@@ -53,7 +53,7 @@ local function formatItems(items, isEgg)
         end
 
         cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
-        table.insert(result, string.format("[x%s] %s", count, cleanName))
+        table.insert(result, string.format("[x%s]yez %s", count, cleanName))
     end
 
     return result
