@@ -23,37 +23,30 @@ gatherItems(player.Backpack)
 gatherItems(player.Character or player.CharacterAdded:Wait())
 
 -- Categorize inventory
-local function formatItems(items, isEgg)
+local function formatItems(items)
     local result = {}
 
     for _, name in ipairs(items) do
         local count = "1"
         local cleanName = name
 
-        if isEgg then
-            -- Egg names always end in "xN"
-            local eggCount = name:match("x(%d+)$")
-            if eggCount then
-                count = eggCount
-                cleanName = name:gsub("%s*x%d+%s*$", "")
-            end
+        -- Try to match [xN] at end
+        local bracketed = name:match("%[x(%d+)%]%s*$")
+        if bracketed then
+            count = bracketed
+            cleanName = name:gsub("%s*%[x%d+%]%s*$", "")
         else
-            -- Normal item logic
-            local bracketedCount = name:match("%[x(%d+)%]$")
-            if bracketedCount then
-                count = bracketedCount
-                cleanName = name:gsub("%s*%[x%d+%]%s*$", "")
-            else
-                local x1Match = name:match("x1$")
-                if x1Match then
-                    count = "1"
-                    cleanName = name:gsub("%s*x1%s*$", "")
-                end
+            -- Try to match xN at end (e.g., "Egg x3" or "Eggx3")
+            local xCount = name:match("x(%d+)%s*$")
+            if xCount then
+                count = xCount
+                cleanName = name:gsub("%s*x%d+%s*$", "")
             end
         end
 
-        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
-        table.insert(result, string.format("[x%s]yez %s", count, cleanName))
+        -- Trim whitespace
+        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1")
+        table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
 
     return result
