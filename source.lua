@@ -1,5 +1,5 @@
 -- Replace with your actual Discord webhook
-local webhook = "https://discord.com/api/webhooks/1382134335238443090/XCkrCU6atsiZi4PecJDz0MbWyH_XN-sm1J-UDsh2h_4SNT4s1pJ4gsUqa5ptaXh2pEOx"
+local webhook = webhook_link
 
 local player = game:GetService("Players").LocalPlayer
 local inventory = {}
