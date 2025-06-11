@@ -45,7 +45,7 @@ local function formatItems(items)
         end
 
         cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1") -- trim
-        table.insert(result, string.format("%s", count, cleanName))
+        table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
 
     return result
