@@ -30,17 +30,17 @@ local function formatItems(items)
         local count = "1"
         local cleanName = name
 
-        -- Try to match [xN] at end
-        local bracketed = name:match("%[x(%d+)%]%s*$")
+        -- Try to match [xN] or [XN] at end (case-insensitive)
+        local bracketed = name:match("%[([xX])(%d+)%]%s*$")
         if bracketed then
-            count = bracketed
-            cleanName = name:gsub("%s*%[x%d+%]%s*$", "")
+            count = name:match("%[.[%d]+%]"):match("%d+")
+            cleanName = name:gsub("%s*%[[xX]%d+%]%s*$", "")
         else
-            -- Try to match xN at end (e.g., "Egg x3" or "Eggx3")
-            local xCount = name:match("x(%d+)%s*$")
+            -- Try to match xN or XN at end (e.g., "Egg x3", "Egg X3", "Eggx3", "EggX3")
+            local xCount = name:match("[xX](%d+)%s*$")
             if xCount then
                 count = xCount
-                cleanName = name:gsub("%s*x%d+%s*$", "")
+                cleanName = name:gsub("%s*[xX]%d+%s*$", "")
             end
         end
 
