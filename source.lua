@@ -25,16 +25,32 @@ gatherItems(player.Character or player.CharacterAdded:Wait())
 -- Categorize inventory
 local function formatItems(items)
     local result = {}
+
     for _, name in ipairs(items) do
-        -- Extract count
-        local count = string.match(name, "%[x(%d+)%]") or "1"
-        -- Remove the [xN] from the name entirely
-        local cleanName = name:gsub("%[x%d+%]%s*", ""):gsub("^%s*(.-)%s*$", "%1")
-        -- Format final result
+        local count = "1"
+        local cleanName = name
+
+        -- Check for [xN] ending
+        local bracketedCount = name:match("%[x(%d+)%]$")
+        if bracketedCount then
+            count = bracketedCount
+            cleanName = name:gsub("%s*%[x%d+%]%s*$", "")
+        else
+            -- Check for x1 (non-bracketed) ending
+            local x1Match = name:match("x1$")
+            if x1Match then
+                count = "1"
+                cleanName = name:gsub("%s*x1%s*$", "")
+            end
+        end
+
+        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1") -- trim
         table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
+
     return result
 end
+
 
 
 
