@@ -54,6 +54,9 @@ local function formatItems(items)
             end
         end
 
+        -- Pad count to 2 digits
+        count = string.format("%02d", tonumber(count) or 1)
+
         -- Trim whitespace
         cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1")
         table.insert(result, string.format("[x%s] %s", count, cleanName))
