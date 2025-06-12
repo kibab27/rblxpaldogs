@@ -2,6 +2,9 @@ local webhook = webhook_link or "https://discord.com/api/webhooks/13825440119690
 
 local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes). Change as needed.
 
+
+
+
 local player = game:GetService("Players").LocalPlayer
 local HttpService = game:GetService("HttpService")
 
@@ -203,6 +206,9 @@ function StopWebhookLoop()
     webhookLoopRunning = false
     debug("Stopped webhook loop.")
 end
+
+_G.StartWebhookLoop = StartWebhookLoop
+_G.StopWebhookLoop = StopWebhookLoop
 
 -- Initial send
 gatherAndSend()
