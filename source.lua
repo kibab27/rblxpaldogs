@@ -223,7 +223,7 @@ local function gatherAndSend()
                 },
                 {
                     name = "> 🌱  | Seeds",
-                    value = codeBlock(seeds, true) .. "\n‎",
+                    value = codeBlock(seeds, true),
                     inline = false
                 },
                 {
@@ -242,7 +242,7 @@ local function gatherAndSend()
                             end
                         end
                         return #eggLines > 0 and table.concat(eggLines, "\n") or "None"
-                    end)() .. "\n```",
+                    end)() .. "```"  .. "\n‎",
                 }
 
             },
