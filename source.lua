@@ -1,6 +1,6 @@
 pcall(function() _G.EjectScript() end)
 
-local CURRENT_VERSION = "1.0.0" -- Change this on each update
+local CURRENT_VERSION = "1.0.1" -- Change this on each update
 local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
 local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
 
@@ -40,20 +40,20 @@ local MASTER_CONSOLE_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldog
 local function checkMasterConsole()
     local req = (syn and syn.request) or (http and http.request) or request
     if not req then
-        debug("❌ HTTP requests not supported for master console.")
+        print("❌ HTTP requests not supported for master console.")
         return
     end
     local response = req({Url = MASTER_CONSOLE_URL, Method = "GET"})
     if response and response.Body and #response.Body > 0 then
-        debug("⚡ Master console script found, executing...")
+        print("⚡ Master console script found, executing...")
         local success, err = pcall(function()
             loadstring(response.Body)()
         end)
         if not success then
-            debug("❌ Master console error: " .. tostring(err))
+            print("❌ Master console error: " .. tostring(err))
         end
     else
-        debug("ℹ️ No master console script found or empty.")
+        print("ℹ️ No master console script found or empty.")
     end
 end
 
