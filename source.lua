@@ -5,12 +5,14 @@ local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes).
 
 
 
-
+local CollectionService = game:GetService("CollectionService")
 local player = game:GetService("Players").LocalPlayer
 local HttpService = game:GetService("HttpService")
 
 local webhookLoopRunning = false
 local webhookLoopThread = nil
+
+
 
 local function debug(msg)
     pcall(function()
@@ -27,6 +29,31 @@ local function formatNumberWithCommas(n)
     end
     return s
 end
+
+-- Get player eggs with status
+
+local function GetPlayerEggsWithStatus()
+    local playerEggs = {}
+    
+    for _, egg in ipairs(CollectionService:GetTagged("PetEggServer")) do
+        if egg:GetAttribute("OWNER") == LocalPlayer.Name then
+            local timeToHatch = egg:GetAttribute("TimeToHatch") or 0
+            local isReady = timeToHatch <= 0
+            local eggName = egg:GetAttribute("EggName") or "Unknown Egg"
+            
+            table.insert(playerEggs, {
+                Instance = egg,
+                Name = eggName,
+                TimeToHatch = timeToHatch,
+                IsReady = isReady,
+                Position = egg:GetPivot().Position
+            })
+        end
+    end
+    
+    return playerEggs
+end
+
 
 -- Gather inventory
 local allItems = {}
@@ -199,6 +226,19 @@ local function gatherAndSend()
                     value = codeBlock(seeds, true) .. "\n‎",
                     inline = false
                 },
+                {
+                    name = "> 🪺  | Placed Eggs",
+                    value = "```lua\n" .. table.concat(
+                        table.create(
+                            #GetPlayerEggsWithStatus(),
+                            function(egg)
+                                return string.format("%s | Time to Hatch: %ds | Ready: %s | Position: (%.2f, %.2f, %.2f)",
+                                    egg.Name, egg.TimeToHatch, tostring(egg.IsReady), egg.Position.X, egg.Position.Y, egg.Position.Z)
+                            end
+                        ),
+                        "\n"
+                    ) .. "\n```",
+                }
 
             },
             footer = {
