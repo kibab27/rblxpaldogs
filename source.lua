@@ -1,9 +1,12 @@
-local webhook = webhook_link or "https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
 
-local UPDATE_INTERVAL = update_interval or 1800 -- seconds (30 minutes). Change as needed.
+local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes). Change as needed.
 
 local player = game:GetService("Players").LocalPlayer
 local HttpService = game:GetService("HttpService")
+
+local webhookLoopRunning = false
+local webhookLoopThread = nil
 
 local function debug(msg)
     pcall(function()
@@ -175,13 +178,34 @@ local function gatherAndSend()
     end
 end
 
+function StartWebhookLoop()
+    if webhookLoopRunning then
+        debug("Webhook loop is already running.")
+        return
+    end
+    webhookLoopRunning = true
+    debug("Starting webhook loop.")
+    webhookLoopThread = spawn(function()
+        while webhookLoopRunning do
+            wait(UPDATE_INTERVAL)
+            if webhookLoopRunning then
+                gatherAndSend()
+            end
+        end
+    end)
+end
+
+function StopWebhookLoop()
+    if not webhookLoopRunning then
+        debug("Webhook loop is not running.")
+        return
+    end
+    webhookLoopRunning = false
+    debug("Stopped webhook loop.")
+end
+
 -- Initial send
 gatherAndSend()
+StartWebhookLoop()
 
--- Loop for periodic updates
-spawn(function()
-    while true do
-        wait(UPDATE_INTERVAL)
-        gatherAndSend()
-    end
-end)
+-- Now you can run StopWebhookLoop() or StartWebhookLoop() in your executor at any time.
