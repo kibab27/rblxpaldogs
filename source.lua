@@ -229,15 +229,20 @@ local function gatherAndSend()
                 {
                     name = "> 🪺  | Placed Eggs",
                     value = "```lua\n" .. (function()
-                    local eggLines = {}
-                    for _, egg in ipairs(GetPlayerEggsWithStatus()) do
-                        table.insert(eggLines, string.format(
-                            "%s | Time to Hatch: %ds | Ready: %s | Position: (%.2f, %.2f, %.2f)",
-                            egg.Name, egg.TimeToHatch, tostring(egg.IsReady), egg.Position.X, egg.Position.Y, egg.Position.Z
-                        ))
-                    end
-                    return #eggLines > 0 and table.concat(eggLines, "\n") or "None"
-                end)() .. "\n```",
+                        local eggLines = {}
+                        for _, egg in ipairs(GetPlayerEggsWithStatus()) do
+                            if egg.IsReady then
+                                table.insert(eggLines, string.format("%s - Ready to Hatch!", egg.Name))
+                            else
+                                local t = egg.TimeToHatch
+                                local h = math.floor(t / 3600)
+                                local m = math.floor((t % 3600) / 60)
+                                local s = t % 60
+                                table.insert(eggLines, string.format("%s - %02d:%02d:%02d", egg.Name, h, m, s))
+                            end
+                        end
+                        return #eggLines > 0 and table.concat(eggLines, "\n") or "None"
+                    end)() .. "\n```",
                 }
 
             },
