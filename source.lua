@@ -30,10 +30,19 @@ end
 -- Gather inventory
 local allItems = {}
 local function gatherItems(container)
+    local nectarStaffCount = 0
     for _, tool in ipairs(container:GetChildren()) do
         if tool:IsA("Tool") then
-            table.insert(allItems, tool.Name)
+            if tool.Name == "Nectar Staff" then
+                nectarStaffCount = nectarStaffCount + 1
+            else
+                table.insert(allItems, tool.Name)
+            end
         end
+    end
+    -- After gathering, add Nectar Staff as a single entry with count if any found
+    if nectarStaffCount > 0 then
+        table.insert(allItems, "Nectar Staff x" .. nectarStaffCount)
     end
 end
 
