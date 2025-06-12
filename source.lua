@@ -2,7 +2,7 @@ pcall(function() _G.EjectScript() end)
 
 local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
 
-local UPDATE_INTERVAL = webhook_update_interval or 5 -- seconds (30 minutes). Change as needed.
+local UPDATE_INTERVAL = 5 -- seconds (30 minutes). Change as needed.
 local PET_HUNGER_ALERT_PERCENT = pet_hunger_alert_percent or 1 
 
 
