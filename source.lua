@@ -1,4 +1,5 @@
 pcall(function() _G.EjectScript() end)
+
 local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
 
 local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes). Change as needed.
@@ -154,6 +155,7 @@ local function gatherAndSend()
     local seeds = filterItems({ "seed" })
     local gears = filterItems({ "sprinkler", "staff", "rod", "watering" })
 
+    --[[
     -- Scan ActivePetUI for equipped pets
     local petsEquipped = {}
     debug("🔍 Scanning ActivePetUI for equipped pets...")
@@ -183,6 +185,69 @@ local function gatherAndSend()
 
     if not success then
         debug("❌ Failed to scan equipped pets: " .. tostring(err))
+    end
+]]
+
+    -- New: Use module-based pet stats
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local ActivePetsService = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("PetServices"):WaitForChild("ActivePetsService"))
+    local PetRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
+    local PetUtilities = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("PetServices"):WaitForChild("PetUtilities"))
+
+    local function GetActivePetStats()
+        local pets = {}
+        local clientPetStates = ActivePetsService:GetClientPetState(player.Name)
+        if not clientPetStates then return pets end
+
+        for petUuid, petState in pairs(clientPetStates) do
+            if petState.Asset and petState.Asset:IsA("BasePart") and petState.Asset:GetAttribute("OWNER") == player.Name then
+                local petData = ActivePetsService:GetPetData(player.Name, petUuid)
+                local petConfig = petData and PetRegistry.PetList[petData.PetType]
+                local stats = {
+                    PetType = petData and petData.PetType or "Unknown",
+                    Level = petData and petData.PetData.Level or 0,
+                    Hunger = petData and petData.PetData.Hunger or 0,
+                    LevelProgress = petData and petData.PetData.LevelProgress or 0,
+                    MaxHunger = petConfig and petConfig.DefaultHunger or 100,
+                    IsMaxLevel = false,
+                    XPToCurrent = 0,
+                    XPToNext = 0,
+                    ProgressPercent = 0
+                }
+                if petData and petConfig then
+                    local currentLevel = stats.Level
+                    local progress = stats.LevelProgress
+                    local maxLevel = PetRegistry.PetConfig.XP_CONFIG.MAX_LEVEL
+                    stats.IsMaxLevel = currentLevel >= maxLevel
+                    stats.XPToCurrent = PetUtilities:GetCurrentLevelXPCost(currentLevel)
+                    stats.XPToNext = stats.IsMaxLevel and 0 or PetUtilities:GetCurrentLevelXPCost(currentLevel + 1)
+                    stats.ProgressPercent = stats.IsMaxLevel and 100 or (stats.XPToNext > 0 and math.floor((progress / stats.XPToNext) * 100) or 0)
+                end
+                table.insert(pets, stats)
+            end
+        end
+        return pets
+    end
+
+    local petsEquipped = {}
+    debug("🔍 Gathering equipped pet stats via ActivePetsService...")
+    local success, err = pcall(function()
+        for _, stat in ipairs(GetActivePetStats()) do
+            local hungerPercent = stat.MaxHunger > 0 and math.floor((stat.Hunger / stat.MaxHunger) * 100) or 0
+            table.insert(petsEquipped,
+                string.format("→ %s\n     Age: %d (%d%%)\n     Hunger: %d (%d%%)",
+                    stat.PetType,
+                    stat.Level,
+                    stat.ProgressPercent,
+                    stat.Hunger,
+                    hungerPercent
+                )
+            )
+            debug("🟢 Found equipped pet: " .. stat.PetType)
+        end
+    end)
+    if not success then
+        debug("❌ Failed to get equipped pets: " .. tostring(err))
     end
 
     -- Get pet slots info
