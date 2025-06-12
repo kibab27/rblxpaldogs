@@ -228,7 +228,7 @@ local function gatherAndSend()
                 },
                 {
                     name = "> 🪺  | Placed Eggs",
-                    value = "```lua\n" .. (function()
+                    value = "```\n" .. (function()
                         local eggLines = {}
                         for _, egg in ipairs(GetPlayerEggsWithStatus()) do
                             if egg.IsReady then
