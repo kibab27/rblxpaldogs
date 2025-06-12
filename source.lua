@@ -136,7 +136,7 @@ local function gatherAndSend()
     local message = {
         content = nil,
         username = player.Name,
-        avatar_url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=100&height=100&format=png",
+        avatar_url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false",
         embeds = { {
             title = "**" .. player.Name .. "**",
             description = "_ _\n> **🪙 Sheckles  **: " ..
