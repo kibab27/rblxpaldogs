@@ -36,7 +36,7 @@ local function GetPlayerEggsWithStatus()
     local playerEggs = {}
     
     for _, egg in ipairs(CollectionService:GetTagged("PetEggServer")) do
-        if egg:GetAttribute("OWNER") == LocalPlayer.Name then
+        if egg:GetAttribute("OWNER") == player.Name then
             local timeToHatch = egg:GetAttribute("TimeToHatch") or 0
             local isReady = timeToHatch <= 0
             local eggName = egg:GetAttribute("EggName") or "Unknown Egg"
