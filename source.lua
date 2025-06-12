@@ -76,8 +76,8 @@ local function filterItems(keywordList)
 end
 
 local function codeBlock(list)
-    if #list == 0 then return "```\nNone\n```" end
-    return "```\n   " .. table.concat(list, "\n‎ ‎ ‎ ‎") .. "\n```"
+    if #list == 0 then return "```\n‎ ‎ ‎ None\n```" end
+    return "```\n   " .. table.concat(list, "\n‎ ‎ ‎ ") .. "\n```"
 end
 
 local function gatherAndSend()
@@ -104,16 +104,14 @@ local function gatherAndSend()
 
         for _, petFrame in pairs(scrollingFrame:GetChildren()) do
             if petFrame:IsA("Frame") and petFrame.Name ~= "PetTemplate" then
-                local nameLabel = petFrame:FindFirstChild("PET_NAME")
                 local typeLabel = petFrame:FindFirstChild("PET_TYPE")
                 local ageLabel = petFrame:FindFirstChild("PET_AGE")
 
-                if nameLabel and typeLabel and ageLabel then
-                    local name = nameLabel.Text
+                if typeLabel and ageLabel then
                     local petType = typeLabel.Text
                     local age = ageLabel.Text:gsub("Age: ", "")
-                    table.insert(petsEquipped, string.format("%s (%s) — Age: %s", name, petType, age))
-                    debug("🟢 Found pet: " .. name)
+                    table.insert(petsEquipped, string.format("%s — Age: %s", petType, age))
+                    debug("🟢 Found pet type: " .. petType)
                 else
                     debug("⚠️ Skipped pet UI frame: " .. petFrame.Name)
                 end
