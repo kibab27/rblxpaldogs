@@ -238,7 +238,7 @@ local function gatherAndSend()
                                 local h = math.floor(t / 3600)
                                 local m = math.floor((t % 3600) / 60)
                                 local s = t % 60
-                                table.insert(eggLines, string.format("%s - %02d:%02d:%02d", egg.Name, h, m, s))
+                                table.insert(eggLines, string.format("%s - %02dh %02dm %02s", egg.Name, h, m, s))
                             end
                         end
                         return #eggLines > 0 and table.concat(eggLines, "\n") or "None"
