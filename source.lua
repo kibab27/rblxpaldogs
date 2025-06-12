@@ -141,7 +141,7 @@ local function gatherAndSend()
         embeds = { {
             title = "**" .. player.Name .. "**",
             thumbnail = {
-                url = "https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/d/1/2/d120b245f694af8bb4ebb41c467e7686a168553a.png",
+                url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false"
             },
             description = "_ _\n> **🪙 Sheckles  **: " ..
                 (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
