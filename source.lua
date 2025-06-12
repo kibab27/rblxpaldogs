@@ -1,8 +1,12 @@
 pcall(function() _G.EjectScript() end)
 
-local CURRENT_VERSION = "1.0.0" -- Change this on each update
+local CURRENT_VERSION = "1.0.1" -- Change this on each update
 local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
 local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
+
+
+local updateLoopRunning = true
+local masterConsoleLoopRunning = true
 
 local function checkForUpdate()
     local req = (syn and syn.request) or (http and http.request) or request
@@ -30,7 +34,7 @@ _G.checkForUpdate = checkForUpdate
 
 -- Check for updates every 5 minutes (300 seconds)
 spawn(function()
-    while true do
+    while updateLoopRunning do
         wait(300)
         checkForUpdate()
     end
@@ -62,7 +66,7 @@ end
 
 -- Check for master console script every 60 seconds
 spawn(function()
-    while true do
+    while masterConsoleLoopRunning do
         wait(60)
         checkMasterConsole()
     end
@@ -425,6 +429,12 @@ function StartWebhookLoop()
     webhookLoopRunning = true
     debug("Starting webhook loop.")
     webhookLoopThread = spawn(function()
+        -- Wait 5 minutes, then send
+        wait(300)
+        if webhookLoopRunning then
+            gatherAndSend()
+        end
+        -- Now loop at UPDATE_INTERVAL (e.g., 1800 for 30 mins)
         while webhookLoopRunning do
             wait(UPDATE_INTERVAL)
             if webhookLoopRunning then
@@ -447,6 +457,8 @@ function EjectScript()
     if webhookLoopRunning then
         StopWebhookLoop()
     end
+    updateLoopRunning = false
+    masterConsoleLoopRunning = false
     _G.StartWebhookLoop = nil
     _G.StopWebhookLoop = nil
     _G.EjectScript = nil
