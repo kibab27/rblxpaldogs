@@ -39,25 +39,16 @@ end
 
 -- Format item counts
 local function formatItems(items)
-    local result = {}
+    local counts = {}
     for _, name in ipairs(items) do
-        local count = "1"
-        local cleanName = name
-        local bracketed = name:match("%[([xX])(%d+)%]%s*$")
-        if bracketed then
-            count = name:match("%[.[%d]+%]"):match("%d+")
-            cleanName = name:gsub("%s*%[[xX]%d+%]%s*$", "")
-        else
-            local xCount = name:match("[xX](%d+)%s*$")
-            if xCount then
-                count = xCount
-                cleanName = name:gsub("%s*[xX]%d+%s*$", "")
-            end
-        end
-        count = string.format("%02d", tonumber(count) or 1)
-        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1")
-        table.insert(result, string.format("[x%s] %s", count, cleanName))
+        name = name:gsub("^%s*(.-)%s*$", "%1")
+        counts[name] = (counts[name] or 0) + 1
     end
+    local result = {}
+    for name, count in pairs(counts) do
+        table.insert(result, string.format("[x%02d] %s", count, name))
+    end
+    table.sort(result)
     return result
 end
 
@@ -90,7 +81,7 @@ local function gatherAndSend()
     local pets = filterItems({ "age" })
     local eggs = filterItems({ "egg" })
     local seeds = filterItems({ "seed" })
-    local gears = filterItems({ "sprinkler", "staff", "rod" })
+    local gears = filterItems({ "sprinkler", "staff", "rod", "watering" })
 
     -- Scan ActivePetUI for equipped pets
     local petsEquipped = {}
@@ -110,7 +101,7 @@ local function gatherAndSend()
                 if typeLabel and ageLabel then
                     local petType = typeLabel.Text
                     local age = ageLabel.Text:gsub("Age: ", "")
-                    table.insert(petsEquipped, string.format("%s — Age: %s", petType, age))
+                    table.insert(petsEquipped, string.format("Age: %s — %s", age, petType))
                     debug("🟢 Found pet type: " .. petType)
                 else
                     debug("⚠️ Skipped pet UI frame: " .. petFrame.Name)
