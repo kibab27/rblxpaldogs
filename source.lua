@@ -92,6 +92,29 @@ local function codeBlock(list, endingblock)
     return "```\n " .. table.concat(list, "\n‎ ") .. "\n```"
 end
 
+local function getPetSlots()
+    local slotsText = ""
+    local success, err = pcall(function()
+        local headerTitle = player:WaitForChild("PlayerGui")
+            :WaitForChild("ActivePetUI")
+            :WaitForChild("Frame")
+            :WaitForChild("Main")
+            :WaitForChild("Header")
+            :WaitForChild("TITLE")
+        slotsText = headerTitle.Text -- e.g., "Active Pets: 3/3"
+    end)
+    if not success then
+        debug("❌ Failed to get pet slots: " .. tostring(err))
+        return "[?/?? Slots]"
+    end
+    local used, total = slotsText:match("Active Pets:%s*(%d+)%s*/%s*(%d+)")
+    if used and total then
+        return string.format("[%s/%s Slots]", used, total)
+    else
+        return "[?/?? Slots]"
+    end
+end
+
 local function gatherAndSend()
     -- Gather inventory again
     allItems = {}
@@ -135,6 +158,9 @@ local function gatherAndSend()
         debug("❌ Failed to scan equipped pets: " .. tostring(err))
     end
 
+    -- Get pet slots info
+    local petSlots = getPetSlots()
+
     -- Prepare webhook payload
     local message = {
         content = nil,
@@ -154,7 +180,7 @@ local function gatherAndSend()
             color = 2750290,
             fields = {
                 {
-                    name = "> 🐶  | Pets Equipped",
+                    name = "> 🐶  | Pets Equipped " .. petSlots,
                     value = codeBlock(petsEquipped),
                     inline = false
                 },
