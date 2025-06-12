@@ -229,23 +229,30 @@ local function gatherAndSend()
         return pets
     end
 
+    local PET_HUNGER_ALERT_PERCENT = 5 -- Change this to your desired threshold
+
     local petsEquipped = {}
+    local hungryPets = {}
     debug("🔍 Gathering equipped pet stats via ActivePetsService...")
     local success, err = pcall(function()
         for _, stat in ipairs(GetActivePetStats()) do
-            local hungerPercent = stat.MaxHunger > 0 and math.floor((stat.Hunger / stat.MaxHunger) * 100) or 0
-            table.insert(petsEquipped,
-                string.format("→ %s\n     Age: %d (%d%%)\n     Hunger: %d (%d%%)",
-                    stat.PetType,
-                    stat.Level,
-                    stat.ProgressPercent,
-                    stat.Hunger,
-                    hungerPercent
-                )
-            )
-            debug("🟢 Found equipped pet: " .. stat.PetType)
-        end
-    end)
+                    local hungerPercent = stat.MaxHunger > 0 and math.floor((stat.Hunger / stat.MaxHunger) * 100) or 0
+                    table.insert(petsEquipped,
+                        string.format("→ %s\n     Age: %d (%d%%)\n     Hunger: %d (%d%%)",
+                            stat.PetType,
+                            stat.Level,
+                            stat.ProgressPercent,
+                            stat.Hunger,
+                            hungerPercent
+                        )
+                    )
+                    if hungerPercent <= PET_HUNGER_ALERT_PERCENT then
+                        table.insert(hungryPets, string.format("%s (%d%%)", stat.PetType, hungerPercent))
+                    end
+
+                    debug("🟢 Found equipped pet: " .. stat.PetType)
+                end
+            end)
     if not success then
         debug("❌ Failed to get equipped pets: " .. tostring(err))
     end
@@ -254,8 +261,15 @@ local function gatherAndSend()
     local petSlots = getPetSlots()
 
     -- Prepare webhook payload
+    local webhookContent = nil
+    if #hungryPets > 0 then
+        webhookContent = "**FEED THE PET(S)! ⚠️ **\n\n" ..
+            table.concat(hungryPets, ", ") .. 
+            " hunger is critically low!" .. "\n\n@everyone"
+    end
+
     local message = {
-        content = nil,
+        content = webhookContent,
         username = player.Name,
         avatar_url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false",
        
