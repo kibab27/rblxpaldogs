@@ -1,6 +1,6 @@
 pcall(function() _G.EjectScript() end)
 
-local CURRENT_VERSION = "1.0.1" -- Change this on each update
+local CURRENT_VERSION = "1.0.2" -- Change this on each update
 local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
 local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
 
@@ -75,7 +75,7 @@ end)
 
 local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
 
-local UPDATE_INTERVAL = webhook_update_interval or 300 -- seconds (30 minutes). Change as needed.
+local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes). Change as needed.
 local PET_HUNGER_ALERT_PERCENT = pet_hunger_alert_percent or 1 
 
 
