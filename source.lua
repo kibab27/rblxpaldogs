@@ -39,16 +39,25 @@ end
 
 -- Format item counts
 local function formatItems(items)
-    local counts = {}
-    for _, name in ipairs(items) do
-        name = name:gsub("^%s*(.-)%s*$", "%1")
-        counts[name] = (counts[name] or 0) + 1
-    end
     local result = {}
-    for name, count in pairs(counts) do
-        table.insert(result, string.format("[x%02d] %s", count, name))
+    for _, name in ipairs(items) do
+        local count = "1"
+        local cleanName = name
+        local bracketed = name:match("%[([xX])(%d+)%]%s*$")
+        if bracketed then
+            count = name:match("%[.[%d]+%]"):match("%d+")
+            cleanName = name:gsub("%s*%[[xX]%d+%]%s*$", "")
+        else
+            local xCount = name:match("[xX](%d+)%s*$")
+            if xCount then
+                count = xCount
+                cleanName = name:gsub("%s*[xX]%d+%s*$", "")
+            end
+        end
+        count = string.format("%02d", tonumber(count) or 1)
+        cleanName = cleanName:gsub("^%s*(.-)%s*$", "%1")
+        table.insert(result, string.format("[x%s] %s", count, cleanName))
     end
-    table.sort(result)
     return result
 end
 
