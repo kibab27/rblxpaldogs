@@ -232,16 +232,16 @@ local function gatherAndSend()
                         local eggLines = {}
                         for _, egg in ipairs(GetPlayerEggsWithStatus()) do
                             if egg.IsReady then
-                                table.insert(eggLines, string.format("%s - Ready to Hatch!", egg.Name))
+                                table.insert(eggLines, string.format("‎ %s - Ready to Hatch!", egg.Name))
                             else
                                 local t = egg.TimeToHatch
                                 local h = math.floor(t / 3600)
                                 local m = math.floor((t % 3600) / 60)
                                 local s = t % 60
-                                table.insert(eggLines, string.format("%s - %02dh %02dm %02s", egg.Name, h, m, s))
+                                table.insert(eggLines, string.format("‎ %s - %02dh %02dm %02ds", egg.Name, h, m, s))
                             end
                         end
-                        return #eggLines > 0 and table.concat(eggLines, "\n") or "None"
+                        return #eggLines > 0 and table.concat(eggLines, "\n") or "‎ None"
                     end)() .. "```"  .. "\n‎",
                 }
 
