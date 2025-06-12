@@ -1,5 +1,5 @@
-if not _G.MasterConsoleUpdateChecked then
-    _G.MasterConsoleUpdateChecked = true
+if  _G.MasterConsoleUpdateChecked then
+    _G.MasterConsoleUpdateChecked = nil
     if _G.checkForUpdate then
         print("🔄 Forcing update check via master_console.lua (run-once per session)...")
         _G.checkForUpdate()

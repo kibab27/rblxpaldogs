@@ -1,6 +1,6 @@
 pcall(function() _G.EjectScript() end)
 
-local CURRENT_VERSION = "1.0.2" -- Change this on each update
+local CURRENT_VERSION = "1.0.3" -- Change this on each update
 local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
 local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
 
