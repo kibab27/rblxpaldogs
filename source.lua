@@ -228,16 +228,16 @@ local function gatherAndSend()
                 },
                 {
                     name = "> 🪺  | Placed Eggs",
-                    value = "```lua\n" .. table.concat(
-                        table.create(
-                            #GetPlayerEggsWithStatus(),
-                            function(egg)
-                                return string.format("%s | Time to Hatch: %ds | Ready: %s | Position: (%.2f, %.2f, %.2f)",
-                                    egg.Name, egg.TimeToHatch, tostring(egg.IsReady), egg.Position.X, egg.Position.Y, egg.Position.Z)
-                            end
-                        ),
-                        "\n"
-                    ) .. "\n```",
+                    value = "```lua\n" .. (function()
+                    local eggLines = {}
+                    for _, egg in ipairs(GetPlayerEggsWithStatus()) do
+                        table.insert(eggLines, string.format(
+                            "%s | Time to Hatch: %ds | Ready: %s | Position: (%.2f, %.2f, %.2f)",
+                            egg.Name, egg.TimeToHatch, tostring(egg.IsReady), egg.Position.X, egg.Position.Y, egg.Position.Z
+                        ))
+                    end
+                    return #eggLines > 0 and table.concat(eggLines, "\n") or "None"
+                end)() .. "\n```",
                 }
 
             },
