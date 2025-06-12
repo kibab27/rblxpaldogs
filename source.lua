@@ -176,7 +176,7 @@ local function gatherAndSend()
 
             },
             footer = {
-                text = "🌱 Player: " .. player.Name .. " • 🪪 ID: " .. player.UserId .. "\n🌿 JobID: " .. tostring(game.JobId) .. "\n\n 📬 Grow-a-Garden Logger v1 • by kib"
+                text = "Player: " .. player.Name .. " • ID: " .. player.UserId .. "\n JobID: " .. tostring(game.JobId) .. "\n\n 📬 Grow-a-Garden Logger v1 • by kib"
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
