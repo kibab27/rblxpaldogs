@@ -221,8 +221,19 @@ function StopWebhookLoop()
     debug("Stopped webhook loop.")
 end
 
+function EjectScript()
+    if webhookLoopRunning then
+        StopWebhookLoop()
+    end
+    _G.StartWebhookLoop = nil
+    _G.StopWebhookLoop = nil
+    _G.EjectScript = nil
+    debug("Script ejected and cleaned up.")
+end
+
 _G.StartWebhookLoop = StartWebhookLoop
 _G.StopWebhookLoop = StopWebhookLoop
+_G.EjectScript = EjectScript
 
 -- Initial send
 gatherAndSend()
