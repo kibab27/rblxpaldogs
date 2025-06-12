@@ -84,9 +84,11 @@ local function filterItems(keywordList)
     return formatItems(filtered)
 end
 
-local function codeBlock(list)
-    if #list == 0 then return "```\n‎ ‎ ‎ None\n```" end
-    return "```\n   " .. table.concat(list, "\n‎ ‎ ‎ ") .. "\n```"
+local function codeBlock(list, endingblock)
+    endingblock = endingblock ~= false -- default to true if nil
+    if #list == 0 then return "```\n‎ None\n```" end
+    if endingblock then return "```\n " .. table.concat(list, "\n‎ ") .. "                 \n```" end
+    return "```\n " .. table.concat(list, "\n‎ ") .. "\n```"
 end
 
 local function gatherAndSend()
@@ -165,9 +167,10 @@ local function gatherAndSend()
                 },
                 {
                     name = "> 🌱 | Seeds",
-                    value = codeBlock(seeds),
+                    value = codeBlock(seeds, true),
                     inline = false
-                }
+                },
+
             },
             footer = {
                 text = "User: " .. player.Name .. " | ID: " .. player.UserId
