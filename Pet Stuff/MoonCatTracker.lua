@@ -1,38 +1,35 @@
+-- 🌙 Moon Cat Passive Tracker v2 by kib
+-- Dynamically tracks and visualizes Moon Cats' passives across players
+
 repeat task.wait() until game:IsLoaded()
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 repeat task.wait() until LocalPlayer:FindFirstChild("PlayerGui")
 
-
-
--- 🌙 Moon Cat Passive Tracker by kib
--- Make sure these APIs are loaded:
+-- Load APIs
 local getEquippedPets = loadstring(game:HttpGet("https://raw.githubusercontent.com/kibab27/rblxpaldogs/refs/heads/main/Pet%20Stuff/InspectPetsAPI.lua"))()
 local PetInspector = loadstring(game:HttpGet("https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/Pet%20Stuff/TrackPetStateAPI.lua"))()
 local PetPositionAPI = loadstring(game:HttpGet("https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/Pet%20Stuff/PetPositionAPI.lua"))()
 local getPassiveStats = loadstring(game:HttpGet("https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/Pet%20Stuff/PassiveStatExtractorAPI.lua"))()
 
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- UI
+-- UI Setup
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "MoonCatUI"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 250, 0, 150)
 Frame.Position = UDim2.new(0, 20, 0, 80)
 Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Frame.BorderSizePixel = 0
-Frame.Name = "MoonCatUI"
 
 local StatusLabel = Instance.new("TextLabel", Frame)
 StatusLabel.Size = UDim2.new(1, 0, 0, 30)
 StatusLabel.BackgroundTransparency = 1
 StatusLabel.TextColor3 = Color3.new(1, 1, 1)
-StatusLabel.Text = "🌙 Finding Moon Cats..."
+StatusLabel.Text = "🌙 Scanning..."
 
 local Toggle = Instance.new("TextButton", Frame)
 Toggle.Position = UDim2.new(0, 0, 0, 40)
@@ -47,9 +44,13 @@ Toggle.BackgroundTransparency = 0.5
 local MoonCats = {}
 local visualsEnabled = true
 
-local function updateStatus(text)
-    StatusLabel.Text = text
+local function updateStatus(mainText)
+    local count = 0
+    for _ in pairs(MoonCats) do count = count + 1 end
+
+    StatusLabel.Text = mainText .. "\n🐱 Moon Cats Tracked: " .. count
 end
+
 
 local function createBeamAttachment(part)
     local attachment = Instance.new("Attachment", part)
@@ -66,13 +67,11 @@ end
 local function visualizeCooldown(petUUID, passiveInfo, petName)
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "MoonCatTracker_" .. petUUID
-    billboard.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
-    billboard.Name = "MoonCatTracker_" .. petUUID
     billboard.Size = UDim2.new(0, 200, 0, 50)
     billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.AlwaysOnTop = true
     billboard.Enabled = true
+    billboard.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     local text = Instance.new("TextLabel", billboard)
     text.Size = UDim2.new(1, 0, 1, 0)
@@ -129,44 +128,54 @@ local function visualizeCooldown(petUUID, passiveInfo, petName)
     end)
 end
 
--- INIT FUNCTION
-local function init()
-    updateStatus("🔍 Finding Moon Cats...")
-    local totalMoonCats = 0
+-- 🧠 Core Moon Cat Finder
+local function checkPlayerForMoonCats(player)
+    local pets = getEquippedPets(player.Name)
+    if not pets then return end
 
-    for _, player in ipairs(Players:GetPlayers()) do
-        local pets = getEquippedPets(player.Name)
-        if pets then
-            for _, pet in ipairs(pets) do
-                if pet and pet.PetType == "Moon Cat" then
-                    totalMoonCats = totalMoonCats + 1
-                    local passiveData = getPassiveStats(pet.UUID, player.Name)
-                    local stats = passiveData and passiveData.Passives and passiveData.Passives["Moonlight Pulse"]
-                    if stats then
-                        MoonCats[pet.UUID] = true
-                        PetPositionAPI.track(pet.UUID)
-                        visualizeCooldown(pet.UUID, stats, pet.PetData.Name or "Moon Cat")
-                    end
-                end
+    for _, pet in ipairs(pets) do
+        if pet and pet.PetType == "Moon Cat" and not MoonCats[pet.UUID] then
+            local passiveData = getPassiveStats(pet.UUID, player.Name)
+            local stats = passiveData and passiveData.Passives and passiveData.Passives["Moonlight Pulse"]
+            if stats then
+                MoonCats[pet.UUID] = true
+                PetPositionAPI.track(pet.UUID)
+                visualizeCooldown(pet.UUID, stats, pet.PetData.Name or "Moon Cat")
+                updateStatus("🌙 Found Moon Cat: " .. pet.PetData.Name)
             end
         end
     end
-
-    if totalMoonCats > 0 then
-        updateStatus("✅ Ready! Moon Cats: " .. totalMoonCats)
-        Toggle.Active = true
-        Toggle.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
-    else
-        updateStatus("⚠️ No Moon Cats found.")
-        Toggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    end
 end
 
+-- 🔁 Periodic Scanner
+task.spawn(function()
+    while true do
+        task.wait(5)
+        for _, player in ipairs(Players:GetPlayers()) do
+            checkPlayerForMoonCats(player)
+        end
+    end
+end)
+
+-- 👥 Player Join Tracker
+Players.PlayerAdded:Connect(function(player)
+    task.delay(5, function()
+        checkPlayerForMoonCats(player)
+    end)
+end)
+
+-- 🔘 Toggle
 Toggle.MouseButton1Click:Connect(function()
     if not Toggle.Active then return end
     visualsEnabled = not visualsEnabled
     Toggle.Text = visualsEnabled and "✅ Visuals On" or "❌ Visuals Off"
 end)
 
--- Start
-init()
+-- Initial Scan
+updateStatus("🔍 Initializing Moon Cat Tracker...")
+for _, player in ipairs(Players:GetPlayers()) do
+    checkPlayerForMoonCats(player)
+end
+updateStatus("✅ Tracker Active")
+Toggle.Active = true
+Toggle.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
