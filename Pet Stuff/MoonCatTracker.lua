@@ -1,3 +1,10 @@
+repeat task.wait() until game:IsLoaded()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+repeat task.wait() until LocalPlayer:FindFirstChild("PlayerGui")
+
+
+
 -- 🌙 Moon Cat Passive Tracker by kib
 -- Make sure these APIs are loaded:
 local getEquippedPets = loadstring(game:HttpGet("https://raw.githubusercontent.com/kibab27/rblxpaldogs/refs/heads/main/Pet%20Stuff/InspectPetsAPI.lua"))()
@@ -10,7 +17,10 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- UI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MoonCatUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 250, 0, 150)
 Frame.Position = UDim2.new(0, 20, 0, 80)
@@ -54,7 +64,10 @@ local function createBeamAttachment(part)
 end
 
 local function visualizeCooldown(petUUID, passiveInfo, petName)
-    local billboard = Instance.new("BillboardGui", game.CoreGui)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "MoonCatTracker_" .. petUUID
+    billboard.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
     billboard.Name = "MoonCatTracker_" .. petUUID
     billboard.Size = UDim2.new(0, 200, 0, 50)
     billboard.StudsOffset = Vector3.new(0, 3, 0)
