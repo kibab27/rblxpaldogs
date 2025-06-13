@@ -206,9 +206,5 @@ function PetInspector.cleanupAll()
     activeTrackers = {}
 end
 
--- Auto-cleanup on script termination
-game:BindToClose(function()
-    PetInspector.cleanupAll()
-end)
 
 return PetInspector
