@@ -6,7 +6,7 @@ return function(playerName)
     local Players = game:GetService("Players")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-    local PetUtilities = require(ReplicatedStorage.Modules.PetUtilities)
+    local PetUtilities = require(ReplicatedStorage.Modules.PetServices.PetUtilities)
 
     -- Resolve the player
     local targetPlayer
