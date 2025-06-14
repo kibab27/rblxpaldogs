@@ -1,6 +1,6 @@
 pcall(function() _G.EjectScript() end)
 
-local CURRENT_VERSION = "1.0.3" -- Change this on each update
+local CURRENT_VERSION = "1.0.4" -- Change this on each update
 local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
 local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
 
@@ -44,23 +44,65 @@ local function checkForUpdate()
     local req = (syn and syn.request) or (http and http.request) or request
     if not req then
         print("❌ HTTP requests not supported for updater.")
-        return
+        return false
     end
+    
     local response = req({Url = VERSION_URL, Method = "GET"})
     if response and response.Body then
         local latestVersion = response.Body:match("[^\r\n]+")
-        if latestVersion and latestVersion ~= CURRENT_VERSION then
+        
+        if not latestVersion then
+            print("❌ Failed to parse version info.")
+            return false
+        end
+        
+        if latestVersion ~= CURRENT_VERSION then
             print("🔄 Update found! Re-executing script...")
+            
+            -- Minimal update notification
+            req({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = game:GetService("HttpService"):JSONEncode({
+                    username = "Script Updater",
+                    embeds = {{
+                        title = "🔄 Script Update Detected",
+                        color = 16753920, -- Orange
+                        fields = {
+                            {
+                                name = "🆕 Version Update",
+                                value = string.format("`%s` → `%s`", CURRENT_VERSION, latestVersion),
+                                inline = false
+                            },
+                            {
+                                name = "📌 Update Status",
+                                value = "Auto-updating to new version...",
+                                inline = false
+                            }
+                        },
+                        footer = {
+                            text = "📬 Grow-a-Garden Logger v1 • by kib"
+                        },
+                        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+                    }}
+                })
+            })
+            
             if _G.EjectScript then _G.EjectScript() end
             loadstring(game:HttpGet(SCRIPT_URL))()
+            return true
         else
             print("✅ Script is up to date.")
+            return false
         end
     else
         print("❌ Failed to check for updates.")
+        return false
     end
 end
-
   
 _G.checkForUpdate = checkForUpdate
 
