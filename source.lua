@@ -4,6 +4,38 @@ local CURRENT_VERSION = "1.0.3" -- Change this on each update
 local SCRIPT_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/source.lua"
 local VERSION_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/version.txt"
 
+local WEBHOOK_MAPPING_URL = "https://raw.githubusercontent.com/kibab27/rblxpaldogs/main/webhook_mapping.json"
+
+
+
+
+local function getWebhookForPlayer()
+    local defaultWebhook = "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
+    
+    local req = (syn and syn.request) or (http and http.request) or request
+    if not req then return defaultWebhook end
+    
+    -- Try to get webhook mapping
+    local success, response = pcall(function()
+        return req({Url = WEBHOOK_MAPPING_URL, Method = "GET"})
+    end)
+    
+    if not success or not response or not response.Body then return defaultWebhook end
+    
+    -- Parse the JSON mapping
+    local success, mapping = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(response.Body)
+    end)
+    
+    if not success or not mapping then return defaultWebhook end
+    
+    -- Look for current player's username
+    local playerName = game:GetService("Players").LocalPlayer.Name
+    return mapping[playerName] or defaultWebhook
+end
+
+local webhook = getWebhookForPlayer()
+
 
 local updateLoopRunning = true
 local masterConsoleLoopRunning = true
@@ -73,7 +105,7 @@ spawn(function()
 end)
 
 
-local webhook = webhook_link or "https://discord.com/api/webhooks/1382544011969040485/CV2BVbKw_9wkgMt-qiB71Lk3IBsUF-uryjHsz_b1WqaiXXhaOpbOqqYayy6N72_rzdyt"
+
 
 local UPDATE_INTERVAL = webhook_update_interval or 1800 -- seconds (30 minutes). Change as needed.
 local PET_HUNGER_ALERT_PERCENT = pet_hunger_alert_percent or 1 
